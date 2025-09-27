@@ -1,0 +1,1 @@
+MEDICAL_GOD_PROMPT = ''

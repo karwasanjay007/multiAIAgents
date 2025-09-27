@@ -1,0 +1,1 @@
+ACADEMIC_GOD_PROMPT = ''

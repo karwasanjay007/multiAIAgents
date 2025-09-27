@@ -1,0 +1,2 @@
+class AgentCoordinator:
+    pass

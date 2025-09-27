@@ -1,0 +1,2 @@
+class SemanticScholarClient:
+    pass

@@ -1,0 +1,2 @@
+class ResultConsolidator:
+    pass
