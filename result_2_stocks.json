@@ -1,0 +1,86 @@
+{
+  "success": true,
+  "query": "What is the current stock price trend for NVIDIA?",
+  "domain": "stocks",
+  "timestamp": "2025-09-27T20:27:47.627600",
+  "executive_summary": "**  \nNVIDIA's stock price is currently in an upward trend, closing at **$178.19** on the most recent trading day, with a modest gain of 0.28%. Over the past year, the stock has shown strong performance, rising by over 43%, and technical indicators remain bullish, though short-term volatility persists[2][4].",
+  "key_findings": [
+    "Current Price:** $178.19 as of the last market close, up 0.28% from the previous session[2][4].",
+    "Short-Term Trend:** The stock gained 1.88% over the last four weeks but declined 1.93% over the past month, indicating some recent consolidation[2][4].",
+    "Long-Term Trend:** NVIDIA's stock price has increased by approximately 43-47% over the past 12 months, reflecting strong long-term momentum[2][4].",
+    "Technical Indicators:** Moving averages and technical indicators are bullish, support"
+  ],
+  "detailed_analysis": "**Executive Summary:**  \nNVIDIA's stock price is currently in an upward trend, closing at **$178.19** on the most recent trading day, with a modest gain of 0.28%. Over the past year, the stock has shown strong performance, rising by over 43%, and technical indicators remain bullish, though short-term volatility persists[2][4].\n\n**Key Findings:**\n- **Current Price:** $178.19 as of the last market close, up 0.28% from the previous session[2][4].\n- **Short-Term Trend:** The stock gained 1.88% over the last four weeks but declined 1.93% over the past month, indicating some recent consolidation[2][4].\n- **Long-Term Trend:** NVIDIA's stock price has increased by approximately 43-47% over the past 12 months, reflecting strong long-term momentum[2][4].\n- **Technical Indicators:** Moving averages and technical indicators are bullish, supporting the positive trend[4].\n- **Analyst & Model Forecasts:** Projections for the remainder of 2025 suggest modest gains in the near term, with potential for significant appreciation into 2026 and 2027[1][2].\n\n**Detailed Analysis:**\n\n- **Recent Price Action:**  \n  NVIDIA closed at $178.19 on September 26, 2025, up $0.50 (0.28%) from the previous close[2][4]. The stock's recent range has been between $175.01 and $178.63, with a 52-week high of $184.53 and a low of $92.12[4].\n\n- **Short-Term Performance:**  \n  Over the past week, the stock rose by 0.91%, but over the last month, it declined by 1.93%, suggesting some short-term volatility or consolidation after a strong run[4]. The 20-day moving average is $174.82, and the 50-day is $176.54, both below the current price, indicating continued upward momentum[4].\n\n- **Long-Term Performance:**  \n  Year-to-date, NVIDIA is up 32.66%, and over the past year, it has gained 43.60%[4]. Over the last three years, the stock is up 45.74%, highlighting robust long-term growth[4].\n\n- **Technical Outlook:**  \n  Technical",
+  "insights": [],
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://longforecast.com/nvidia",
+      "title": "Source 1",
+      "type": "web"
+    },
+    {
+      "id": 2,
+      "url": "https://tradingeconomics.com/nvda:us",
+      "title": "Source 2",
+      "type": "web"
+    },
+    {
+      "id": 3,
+      "url": "https://investor.nvidia.com/stock-info/stock-quote-and-chart/default.aspx",
+      "title": "Source 3",
+      "type": "web"
+    },
+    {
+      "id": 4,
+      "url": "https://www.moneycontrol.com/us-markets/stockpricequote/nvidia/NVDA",
+      "title": "Source 4",
+      "type": "web"
+    },
+    {
+      "id": 5,
+      "url": "https://www.digrin.com/stocks/detail/NVDA/price",
+      "title": "Source 5",
+      "type": "web"
+    },
+    {
+      "id": 6,
+      "url": "https://www.tradingview.com/symbols/NASDAQ-NVDA/",
+      "title": "Source 6",
+      "type": "web"
+    },
+    {
+      "id": 7,
+      "url": "https://stockanalysis.com/stocks/nvda/history/",
+      "title": "Source 7",
+      "type": "web"
+    },
+    {
+      "id": 8,
+      "url": "https://robinhood.com/us/en/stocks/NVDA/",
+      "title": "Source 8",
+      "type": "web"
+    },
+    {
+      "id": 9,
+      "url": "https://www.nasdaq.com/market-activity/stocks/nvda/historical",
+      "title": "Source 9",
+      "type": "web"
+    }
+  ],
+  "citation_count": 9,
+  "tokens_used": 604,
+  "prompt_tokens": 104,
+  "completion_tokens": 500,
+  "token_breakdown": {
+    "input": 104,
+    "output": 500,
+    "total": 604
+  },
+  "estimated_cost": 0.000604,
+  "full_response": "**Executive Summary:**  \nNVIDIA's stock price is currently in an upward trend, closing at **$178.19** on the most recent trading day, with a modest gain of 0.28%. Over the past year, the stock has shown strong performance, rising by over 43%, and technical indicators remain bullish, though short-term volatility persists[2][4].\n\n**Key Findings:**\n- **Current Price:** $178.19 as of the last market close, up 0.28% from the previous session[2][4].\n- **Short-Term Trend:** The stock gained 1.88% over the last four weeks but declined 1.93% over the past month, indicating some recent consolidation[2][4].\n- **Long-Term Trend:** NVIDIA's stock price has increased by approximately 43-47% over the past 12 months, reflecting strong long-term momentum[2][4].\n- **Technical Indicators:** Moving averages and technical indicators are bullish, supporting the positive trend[4].\n- **Analyst & Model Forecasts:** Projections for the remainder of 2025 suggest modest gains in the near term, with potential for significant appreciation into 2026 and 2027[1][2].\n\n**Detailed Analysis:**\n\n- **Recent Price Action:**  \n  NVIDIA closed at $178.19 on September 26, 2025, up $0.50 (0.28%) from the previous close[2][4]. The stock's recent range has been between $175.01 and $178.63, with a 52-week high of $184.53 and a low of $92.12[4].\n\n- **Short-Term Performance:**  \n  Over the past week, the stock rose by 0.91%, but over the last month, it declined by 1.93%, suggesting some short-term volatility or consolidation after a strong run[4]. The 20-day moving average is $174.82, and the 50-day is $176.54, both below the current price, indicating continued upward momentum[4].\n\n- **Long-Term Performance:**  \n  Year-to-date, NVIDIA is up 32.66%, and over the past year, it has gained 43.60%[4]. Over the last three years, the stock is up 45.74%, highlighting robust long-term growth[4].\n\n- **Technical Outlook:**  \n  Technical",
+  "model": "sonar-pro",
+  "search_quality": "standard",
+  "agent_name": "Perplexity Deep Research Agent",
+  "agent_type": "perplexity"
+}

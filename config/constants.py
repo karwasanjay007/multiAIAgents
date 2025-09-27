@@ -1,7 +1,8 @@
-# In config/constants.py
+# ============================================================================
+# FILE 3: Update config/constants.py
+# ============================================================================
+# Update the AGENT_COSTS to reflect actual Perplexity pricing
 
-# Maps research domains to a list of recommended agent IDs.
-# These IDs correspond to the agent checkboxes in ui/components/agent_selector.py
 DOMAIN_AGENT_MAP = {
     "technology": ["perplexity", "youtube"],
     "medical": ["perplexity", "youtube", "api"],
@@ -9,14 +10,14 @@ DOMAIN_AGENT_MAP = {
     "academic": ["perplexity", "api"],
 }
 
-# Maps agent IDs to their estimated cost per run.
+# Updated costs based on actual Perplexity pricing
+# sonar-pro: $1 per 1M tokens (both input and output)
 AGENT_COSTS = {
-    "perplexity": 0.65,
+    "perplexity": 0.001,  # Approximate per request (~1000 tokens)
     "youtube": 0.15,
     "api": 0.35,
 }
 
-# Maps agent IDs to their estimated processing time in minutes.
 AGENT_TIMES = {
     "perplexity": 5,
     "youtube": 2,

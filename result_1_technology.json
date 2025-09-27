@@ -1,0 +1,91 @@
+{
+  "success": true,
+  "query": "What are the latest AI trends in 2025?",
+  "domain": "technology",
+  "timestamp": "2025-09-27T20:27:35.331556",
+  "executive_summary": "**  \nIn 2025, artificial intelligence is advancing rapidly across enterprise, consumer, and scientific domains, with key trends including the rise of agentic AI, advanced reasoning capabilities, custom AI hardware, hyper-personalization, and the integration of AI into critical business and societal functions. Enterprises are prioritizing optimized performance, security, and measurable ROI, while AI\u2019s role in scientific discovery and customer experience is expanding significantly[1][2][3].",
+  "key_findings": [
+    "Agentic AI and Advanced Reasoning:** AI systems are evolving to perform complex, multi-step tasks with greater autonomy and human-like reasoning, enabling more sophisticated workflows and decision-making[1][3].",
+    "Custom Silicon and Infrastructure:** The demand for specialized AI chips and optimized cloud infrastructure is increasing, driven by the need for faster, more efficient AI workloads[1].",
+    "Hyper-Personalization:** AI-driven predictive analytics and emotional intelligence are"
+  ],
+  "detailed_analysis": "**Executive Summary:**  \nIn 2025, artificial intelligence is advancing rapidly across enterprise, consumer, and scientific domains, with key trends including the rise of agentic AI, advanced reasoning capabilities, custom AI hardware, hyper-personalization, and the integration of AI into critical business and societal functions. Enterprises are prioritizing optimized performance, security, and measurable ROI, while AI\u2019s role in scientific discovery and customer experience is expanding significantly[1][2][3].\n\n**Key Findings:**\n- **Agentic AI and Advanced Reasoning:** AI systems are evolving to perform complex, multi-step tasks with greater autonomy and human-like reasoning, enabling more sophisticated workflows and decision-making[1][3].\n- **Custom Silicon and Infrastructure:** The demand for specialized AI chips and optimized cloud infrastructure is increasing, driven by the need for faster, more efficient AI workloads[1].\n- **Hyper-Personalization:** AI-driven predictive analytics and emotional intelligence are enabling highly personalized customer experiences, particularly in retail, healthcare, and banking[2].\n- **AI Efficacy Measurement:** New systems and tools are emerging to rigorously evaluate and benchmark AI performance, safety, and business impact[1].\n- **AI in Scientific Discovery:** AI is accelerating breakthroughs in fields such as drug discovery, biomolecular simulation, and climate science, with models capable of solving previously intractable problems[3].\n\n**Detailed Analysis:**\n\n- **Agentic AI and Reasoning:**  \n  AI is moving beyond simple automation to become more agentic\u2014capable of initiating, planning, and executing complex tasks with minimal human intervention. This includes large language models (LLMs) with advanced reasoning, able to solve problems in science, law, and medicine by mimicking human logical processes[1][3]. These agentic systems are expected to transform both enterprise operations and consumer applications, making AI a core part of daily workflows and decision-making[3].\n\n- **Custom Silicon and Cloud Migration:**  \n  As AI workloads grow, there is a surge in demand for custom silicon (specialized AI chips) and cloud infrastructure optimized for AI. Hyperscalers (large cloud providers) are investing heavily in these areas to support enterprise needs for performance, profitability, and security[1]. This trend is also influenced by global supply chain constraints and evolving trade policies, which impact chip availability and cost[1].\n\n- **Hyper-Personalization and Emotional Intelligence:**  \n  AI is enabling",
+  "insights": [],
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://www.morganstanley.com/insights/articles/ai-trends-reasoning-frontier-models-2025-tmt",
+      "title": "Source 1",
+      "type": "web"
+    },
+    {
+      "id": 2,
+      "url": "https://www.nice.com/info/top-ai-cx-trends-for-2025-how-artificial-intelligence-is-transforming-customer-experience",
+      "title": "Source 2",
+      "type": "web"
+    },
+    {
+      "id": 3,
+      "url": "https://news.microsoft.com/source/features/ai/6-ai-trends-youll-see-more-of-in-2025/",
+      "title": "Source 3",
+      "type": "web"
+    },
+    {
+      "id": 4,
+      "url": "https://cloud.google.com/resources/ai-trends-report",
+      "title": "Source 4",
+      "type": "web"
+    },
+    {
+      "id": 5,
+      "url": "https://hai.stanford.edu/ai-index/2025-ai-index-report",
+      "title": "Source 5",
+      "type": "web"
+    },
+    {
+      "id": 6,
+      "url": "https://www.youtube.com/watch?v=5zuF4Ys1eAw",
+      "title": "Source 6",
+      "type": "web"
+    },
+    {
+      "id": 7,
+      "url": "https://www.mckinsey.com/capabilities/mckinsey-digital/our-insights/the-top-trends-in-tech",
+      "title": "Source 7",
+      "type": "web"
+    },
+    {
+      "id": 8,
+      "url": "https://explodingtopics.com/blog/future-of-ai",
+      "title": "Source 8",
+      "type": "web"
+    },
+    {
+      "id": 9,
+      "url": "https://www.bondcap.com/report/pdf/Trends_Artificial_Intelligence.pdf",
+      "title": "Source 9",
+      "type": "web"
+    },
+    {
+      "id": 10,
+      "url": "https://www.ibm.com/think/insights/artificial-intelligence-trends",
+      "title": "Source 10",
+      "type": "web"
+    }
+  ],
+  "citation_count": 10,
+  "tokens_used": 598,
+  "prompt_tokens": 104,
+  "completion_tokens": 494,
+  "token_breakdown": {
+    "input": 104,
+    "output": 494,
+    "total": 598
+  },
+  "estimated_cost": 0.000598,
+  "full_response": "**Executive Summary:**  \nIn 2025, artificial intelligence is advancing rapidly across enterprise, consumer, and scientific domains, with key trends including the rise of agentic AI, advanced reasoning capabilities, custom AI hardware, hyper-personalization, and the integration of AI into critical business and societal functions. Enterprises are prioritizing optimized performance, security, and measurable ROI, while AI\u2019s role in scientific discovery and customer experience is expanding significantly[1][2][3].\n\n**Key Findings:**\n- **Agentic AI and Advanced Reasoning:** AI systems are evolving to perform complex, multi-step tasks with greater autonomy and human-like reasoning, enabling more sophisticated workflows and decision-making[1][3].\n- **Custom Silicon and Infrastructure:** The demand for specialized AI chips and optimized cloud infrastructure is increasing, driven by the need for faster, more efficient AI workloads[1].\n- **Hyper-Personalization:** AI-driven predictive analytics and emotional intelligence are enabling highly personalized customer experiences, particularly in retail, healthcare, and banking[2].\n- **AI Efficacy Measurement:** New systems and tools are emerging to rigorously evaluate and benchmark AI performance, safety, and business impact[1].\n- **AI in Scientific Discovery:** AI is accelerating breakthroughs in fields such as drug discovery, biomolecular simulation, and climate science, with models capable of solving previously intractable problems[3].\n\n**Detailed Analysis:**\n\n- **Agentic AI and Reasoning:**  \n  AI is moving beyond simple automation to become more agentic\u2014capable of initiating, planning, and executing complex tasks with minimal human intervention. This includes large language models (LLMs) with advanced reasoning, able to solve problems in science, law, and medicine by mimicking human logical processes[1][3]. These agentic systems are expected to transform both enterprise operations and consumer applications, making AI a core part of daily workflows and decision-making[3].\n\n- **Custom Silicon and Cloud Migration:**  \n  As AI workloads grow, there is a surge in demand for custom silicon (specialized AI chips) and cloud infrastructure optimized for AI. Hyperscalers (large cloud providers) are investing heavily in these areas to support enterprise needs for performance, profitability, and security[1]. This trend is also influenced by global supply chain constraints and evolving trade policies, which impact chip availability and cost[1].\n\n- **Hyper-Personalization and Emotional Intelligence:**  \n  AI is enabling",
+  "model": "sonar-pro",
+  "search_quality": "standard",
+  "agent_name": "Perplexity Deep Research Agent",
+  "agent_type": "perplexity"
+}
