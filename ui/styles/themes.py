@@ -1,122 +1,208 @@
 # ============================================================================
-# FILE: ui/styles/themes.py
+# FILE 3: ui/styles/themes.py (ENHANCED VERSION)
 # ============================================================================
 
-# Custom Streamlit theme configuration
-CUSTOM_THEME = {
-    "primaryColor": "#5a67d8",
-    "backgroundColor": "#f7fafc",
-    "secondaryBackgroundColor": "#edf2f7",
-    "textColor": "#2d3748",
-    "font": "sans serif"
-}
-
-# CSS overrides for custom styling
-CUSTOM_CSS = """
-<style>
+def apply_custom_theme():
+    """Apply enhanced industry-standard theme"""
+    import streamlit as st
+    
+    st.markdown("""
+    <style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
+    /* Global Styles */
+    * {
+        font-family: 'Inter', sans-serif;
+    }
+    
     /* Main container */
     .main .block-container {
         padding-top: 2rem;
         padding-bottom: 2rem;
+        max-width: 1400px;
     }
-
-    /* Agent selection cards */
-    .agent-card {
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 1rem;
-        background: white;
-        width: 100%;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-        cursor: pointer;
-    }
-    .agent-card:hover {
-        border-color: #5a67d8;
-        box-shadow: 0 12px 20px rgba(90, 103, 216, 0.2);
-    }
-    .agent-card-selected {
-        border-width: 2px;
-        border-color: #5a67d8;
-        background: #f0f2ff;
-    }
-
-    .agent-card-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .agent-card-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: #eef2ff;
-        color: #5a67d8;
-        border-radius: 12px;
-        width: 40px;
-        height: 40px;
-        flex-shrink: 0;
-        font-size: 1.2rem;
-    }
-
-    .agent-card-title {
+    
+    /* Headers */
+    h1, h2, h3, h4 {
         font-weight: 600;
-        color: #2d3748;
+        color: #1f2937;
     }
-
-    .agent-card-description {
-        font-size: 0.85rem;
-        color: #4a5568;
-        margin-top: 0.5rem;
+    
+    /* Buttons */
+    .stButton > button {
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px rgba(102, 126, 234, 0.25);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Download buttons */
+    .stDownloadButton > button {
+        border-radius: 8px;
+        border: 2px solid #667eea;
+        background: white;
+        color: #667eea;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .stDownloadButton > button:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    /* Input fields */
+    .stTextInput > div > div > input,
+    .stTextArea > div > div > textarea {
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+    
+    .stTextInput > div > div > input:focus,
+    .stTextArea > div > div > textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    /* Select boxes */
+    .stSelectbox > div > div {
+        border-radius: 8px;
+    }
+    
+    /* Multiselect */
+    .stMultiSelect > div > div {
+        border-radius: 8px;
+    }
+    
+    /* Info boxes */
+    .stAlert {
+        border-radius: 8px;
+        border-left: 4px solid;
     }
     
     /* Metrics */
     [data-testid="stMetricValue"] {
-        font-size: 1.5rem;
-        color: #5a67d8;
-    }
-    
-    /* Buttons */
-    .stButton>button {
-        border-radius: 8px;
+        font-size: 1.8rem;
         font-weight: 600;
-        border: 2px solid #5a67d8;
-        background-color: #5a67d8;
+        color: #667eea;
+    }
+    
+    /* Expanders */
+    .streamlit-expanderHeader {
+        border-radius: 8px;
+        background: #f9fafb;
+        font-weight: 600;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background: #f3f4f6;
+    }
+    
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px 8px 0 0;
+        padding: 12px 24px;
+        font-weight: 600;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-    }
-    .stButton>button:hover {
-        border: 2px solid #4c51bf;
-        background-color: #4c51bf;
-        color: white;
-    }
-    
-    /* Info boxes */
-    .stInfo {
-        background-color: #ebf8ff;
-        border-left: 4px solid #3182ce;
-    }
-    
-    /* Success boxes */
-    .stSuccess {
-        background-color: #f0fff4;
-        border-left: 4px solid #38a169;
-    }
-    
-    /* Warning boxes */
-    .stWarning {
-        background-color: #fffaf0;
-        border-left: 4px solid #dd6b20;
     }
     
     /* Progress bars */
     .stProgress > div > div > div {
-        background-color: #5a67d8;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
     }
-</style>
-"""
-
-def apply_custom_theme():
-    """Apply custom theme to Streamlit app"""
-    import streamlit as st
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+    }
+    
+    /* Spinner */
+    .stSpinner > div {
+        border-top-color: #667eea !important;
+    }
+    
+    /* Tooltips */
+    [data-testid="stTooltipIcon"] {
+        color: #667eea;
+    }
+    
+    /* Balloons animation enhancement */
+    [data-testid="stBalloons"] {
+        z-index: 9999;
+    }
+    
+    /* Success messages */
+    .stSuccess {
+        background: linear-gradient(90deg, #10b98115 0%, #10b98125 100%);
+        border-left: 4px solid #10b981;
+        border-radius: 8px;
+    }
+    
+    /* Error messages */
+    .stError {
+        background: linear-gradient(90deg, #ef444415 0%, #ef444425 100%);
+        border-left: 4px solid #ef4444;
+        border-radius: 8px;
+    }
+    
+    /* Warning messages */
+    .stWarning {
+        background: linear-gradient(90deg, #f59e0b15 0%, #f59e0b25 100%);
+        border-left: 4px solid #f59e0b;
+        border-radius: 8px;
+    }
+    
+    /* Card-like containers */
+    .element-container {
+        transition: all 0.3s ease;
+    }
+    
+    /* Smooth scrolling */
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* Hide Streamlit branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        border-radius: 5px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #5568d3;
+    }
+    </style>
+    """, unsafe_allow_html=True)

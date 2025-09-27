@@ -185,28 +185,53 @@ with col1:
                     status_text.empty()
                     st.rerun()
 
+# ============================================================================
+# FILE: app.py (ENHANCED ERROR HANDLING)
+# Add this around line 190 where render_cost_tracker is called
+# ============================================================================
+
 with col2:
     st.subheader("Results & Cost")
-    render_cost_tracker(selected_agents)
+    
+    # FIX: Add try-except wrapper for cost tracker
+    try:
+        render_cost_tracker(selected_agents)
+    except Exception as e:
+        st.error(f"Error displaying cost tracker: {str(e)}")
+        # Fallback display
+        st.metric("Selected Agents", len(selected_agents))
     
     # Results section
     if st.session_state.research_results:
         st.markdown("---")
-        render_results(st.session_state.research_results)
-        st.markdown("---")
-        render_export_buttons(st.session_state.research_results)
-    else:
-        st.info("💡 Configure your research options and click 'Start Research' to begin")
+        try:
+            render_results(st.session_state.research_results)
+        except Exception as e:
+            st.error(f"Error displaying results: {str(e)}")
+            st.json(st.session_state.research_results)
         
-        # Show quick tips
-        with st.expander("Quick Tips"):
+        st.markdown("---")
+        try:
+            render_export_buttons(st.session_state.research_results)
+        except Exception as e:
+            st.error(f"Error displaying export buttons: {str(e)}")
+    else:
+        st.info("💡 Configure your research and click 'Start Research'")
+        
+        with st.expander("✨ Quick Tips", expanded=True):
             st.markdown("""
-            - **Choose your domain** carefully for better agent recommendations
-            - **Select Web Research** to use Perplexity AI for deep search
-            - **Be specific** in your research question for better results
-            - **Check cost estimates** before starting research
-            - **View history** to review past queries
-            """)
+            <div style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); 
+                        padding: 20px; border-radius: 12px; border-left: 4px solid #667eea;">
+                <h4 style="margin-top: 0; color: #667eea;">🎯 How to Get Best Results</h4>
+                <ul style="line-height: 1.8;">
+                    <li><strong>Choose domain carefully</strong> - Gets better agent recommendations</li>
+                    <li><strong>Select Web Research</strong> - Uses Perplexity AI for deep analysis</li>
+                    <li><strong>Be specific</strong> - Detailed questions get better answers</li>
+                    <li><strong>Check costs</strong> - Review estimates before starting</li>
+                    <li><strong>View history</strong> - Access past queries anytime</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)                    
 
 # Footer
 st.markdown("---")
