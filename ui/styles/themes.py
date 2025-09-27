@@ -20,16 +20,6 @@ CUSTOM_CSS = """
         padding-bottom: 2rem;
     }
     
-    /* Card style */
-    .card {
-        background-color: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
-    
     /* Metrics */
     [data-testid="stMetricValue"] {
         font-size: 1.5rem;
@@ -69,7 +59,7 @@ CUSTOM_CSS = """
     }
     
     /* Progress bars */
-    .stProgress > div > div > div {
+    .stProgress > div > div > div > div {
         background-color: #5a67d8;
     }
 </style>

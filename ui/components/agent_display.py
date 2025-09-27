@@ -5,7 +5,7 @@ import streamlit as st
 from config.constants import DOMAIN_AGENT_MAP
 
 def render_agent_display(domain: str, processing: bool = False) -> list:
-    """Render agent selection and status in a unified display."""
+    """Render agent selection and status in a unified, modern display."""
     
     st.markdown("### Select Research Sources")
 
@@ -13,23 +13,17 @@ def render_agent_display(domain: str, processing: bool = False) -> list:
         "perplexity": {
             "name": "Web Research",
             "icon": "🌐",
-            "description": "Deep web analysis using Perplexity AI - searches across internet sources with citations.",
-            "cost": "$0.65",
-            "time": "~5 min"
+            "description": "Deep web analysis using Perplexity AI.",
         },
         "youtube": {
             "name": "Video Analysis",
             "icon": "📹",
-            "description": "YouTube sentiment analysis - extracts insights from expert videos and public opinion.",
-            "cost": "$0.15",
-            "time": "~2 min"
+            "description": "YouTube sentiment analysis.",
         },
         "api": {
             "name": "API Agent",
             "icon": "📚",
-            "description": "External data sources - fetches academic papers, news, and market data via APIs.",
-            "cost": "$0.35",
-            "time": "~3 min"
+            "description": "Academic papers, news, and market data.",
         }
     }
 
@@ -43,37 +37,39 @@ def render_agent_display(domain: str, processing: bool = False) -> list:
     }
     st.info(f"**Recommended for {domain.capitalize()}:** {recommendation_text.get(domain, 'Web Research + API Agent')}")
 
-    selected_agents = []
+    # Create a list of options for the multiselect
+    options = [f"{info['icon']} {info['name']}" for agent_id, info in agent_info.items()]
     
-    for agent_id, info in agent_info.items():
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        with st.container():
-            col1, col2 = st.columns([4, 1])
-            with col1:
-                is_selected = st.toggle(
-                    f"{info['icon']} **{info['name']}**",
-                    value=(agent_id in recommended),
-                    key=f"agent_toggle_{agent_id}",
-                    help=info['description']
-                )
-            with col2:
-                st.markdown(f"<div style='text-align: right;'>{info['cost']} | {info['time']}</div>", unsafe_allow_html=True)
+    # Map recommended agent_ids to the formatted options
+    default_selection = [f"{agent_info[agent_id]['icon']} {agent_info[agent_id]['name']}" for agent_id in recommended]
 
-            if is_selected:
-                selected_agents.append(agent_id)
+    selected_options = st.multiselect(
+        "Select sources:",
+        options=options,
+        default=default_selection,
+        help="Choose the sources you want to use for your research."
+    )
+
+    # Map selected options back to agent_ids
+    selected_agents = [agent_id for agent_id, info in agent_info.items() if f"{info['icon']} {info['name']}" in selected_options]
+
+    if processing:
+        progress_cols = st.columns(len(selected_agents))
+        for i, agent_id in enumerate(selected_agents):
+            with progress_cols[i]:
+                st.write(f"**{agent_info[agent_id]['name']}**")
                 status = st.session_state.get(f'{agent_id}_status', 'idle')
                 progress = st.session_state.get(f'{agent_id}_progress', 0)
 
-                if processing and agent_id in st.session_state.get('selected_agents', []):
+                if agent_id in st.session_state.get('selected_agents', []):
                     if status == 'processing':
-                        st.progress(progress / 100, text=f"⏳ Processing... {progress}%")
+                        st.progress(progress / 100, text=f"⏳ {progress}%")
                     elif status == 'complete':
-                        st.progress(1.0, text="✅ Complete")
+                        st.progress(1.0, text="✅")
                     elif status == 'error':
-                        st.error("❌ Error")
+                        st.error("❌")
                     else:
-                        st.progress(0, text="⏸️ Ready")
-        st.markdown('</div>', unsafe_allow_html=True)
+                        st.progress(0, text="...")
 
     if not selected_agents:
         st.warning("Please select at least one research source to proceed.")
