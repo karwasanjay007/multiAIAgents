@@ -1,10 +1,36 @@
 # ============================================================================
-# FILE: app.py (UPDATED - Complete Version)
+# FILE 2: app.py (COMPLETE UPDATED VERSION)
 # ============================================================================
 import streamlit as st
 import asyncio
-import time
+import sys
+import os
 from datetime import datetime
+from pathlib import Path
+
+# ⭐ CRITICAL: Load environment variables FIRST before any other imports
+from dotenv import load_dotenv
+
+# Load .env file from project root
+env_path = Path(__file__).parent / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# Verify API key is loaded
+if os.getenv("PERPLEXITY_API_KEY"):
+    print(f"✅ API Key loaded: {os.getenv('PERPLEXITY_API_KEY')[:10]}...")
+else:
+    print("❌ PERPLEXITY_API_KEY not found!")
+
+# Import UI components (after loading env)
+from ui.components.sidebar import render_sidebar
+from ui.components.agent_display import render_agent_display
+from ui.components.cost_tracker import render_cost_tracker
+from ui.components.results_display import render_results
+from ui.components.export_buttons import render_export_buttons
+from ui.styles.themes import apply_custom_theme
+
+# Import workflow
+from workflows.langgraph_workflow import ResearchWorkflow
 
 # Import UI components
 from ui.components.sidebar import render_sidebar
@@ -22,12 +48,7 @@ st.set_page_config(
     page_title="Multi-Agent AI Deep Researcher",
     page_icon="🔬",
     layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': 'https://github.com/yourusername/multi-agent-researcher',
-        'Report a bug': 'https://github.com/yourusername/multi-agent-researcher/issues',
-        'About': 'Multi-Agent AI Deep Researcher v0.1.0'
-    }
+    initial_sidebar_state="expanded"
 )
 
 # Apply custom theme
@@ -47,62 +68,9 @@ if 'processing' not in st.session_state:
 if 'mock_mode' not in st.session_state:
     st.session_state.mock_mode = False
 
-async def simulate_research(selected_agents: list, domain: str):
-    """Simulate a research workflow for mock mode."""
-    st.session_state.research_results = None
-    
-    for agent in selected_agents:
-        st.session_state[f"{agent}_status"] = "processing"
-        for i in range(101):
-            st.session_state[f"{agent}_progress"] = i
-            await asyncio.sleep(0.01)
-        st.session_state[f"{agent}_status"] = "complete"
-
-    # Mock results based on domain
-    mock_data = {
-        "stocks": {
-            "summary": "Mock analysis for the stock market indicates a bullish trend for tech stocks, driven by recent advancements in AI.",
-            "articles": [
-                {"title": "Tech Stocks Surge on AI Optimism", "url": "https://example.com/stock1", "snippet": "The tech sector saw a significant surge this week, with investors showing strong confidence in AI-related companies."},
-                {"title": "Market Analysis: A Bullish Outlook", "url": "https://example.com/stock2", "snippet": "Our analysis suggests a continued bullish market for the foreseeable future, with tech and renewable energy leading the way."},
-            ],
-            "videos": [],
-            "total_cost": 0.0,
-        },
-        "medical": {
-            "summary": "Mock medical research highlights a breakthrough in Alzheimer's treatment, with a new drug showing promising results in clinical trials.",
-            "articles": [
-                {"title": "New Alzheimer's Drug Shows Promise", "url": "https://example.com/medical1", "snippet": "A new drug, 'CogniClear', has shown remarkable results in slowing the progression of Alzheimer's disease in phase 3 clinical trials."},
-                {"title": "The Future of Alzheimer's Treatment", "url": "https://example.com/medical2", "snippet": "Researchers are optimistic about the future of Alzheimer's treatment, with several new drugs and therapies in the pipeline."},
-            ],
-            "videos": [
-                {"title": "Expert Opinions on CogniClear", "url": "https://youtube.com/watch?v=dQw4w9WgXcQ", "snippet": "Leading neurologists discuss the potential impact of CogniClear on Alzheimer's patients and their families."},
-            ],
-            "total_cost": 0.0,
-        },
-        "academic": {
-            "summary": "Mock academic research on quantum computing reveals new algorithms that could solve previously intractable problems.",
-            "articles": [
-                {"title": "New Quantum Algorithm Breaks Ground", "url": "https://example.com/academic1", "snippet": "A paper published in 'Nature' this week details a new quantum algorithm with the potential to revolutionize fields from medicine to finance."},
-                {"title": "The Implications of Quantum Supremacy", "url": "https://example.com/academic2", "snippet": "As quantum computers become more powerful, the implications for society are vast. This article explores the potential benefits and risks."},
-            ],
-            "videos": [],
-            "total_cost": 0.0,
-        },
-        "technology": {
-            "summary": "Mock technology trend analysis shows a rapid increase in the adoption of decentralized identity solutions.",
-            "articles": [
-                {"title": "The Rise of Decentralized Identity", "url": "https://example.com/tech1", "snippet": "Decentralized identity is gaining traction as a more secure and user-centric alternative to traditional identity systems."},
-                {"title": "How Web3 is Changing the Internet", "url": "https://example.com/tech2", "snippet": "Web3 technologies, including decentralized identity and blockchain, are poised to reshape the internet as we know it."},
-            ],
-            "videos": [
-                {"title": "Decentralized Identity Explained", "url": "https://youtube.com/watch?v=dQw4w9WgXcQ", "snippet": "This video provides a clear and concise explanation of decentralized identity and its potential benefits."},
-            ],
-            "total_cost": 0.0,
-        },
-    }
-    
-    return mock_data.get(domain, {"summary": "No mock data available for this domain.", "articles": [], "videos": [], "total_cost": 0.0})
+# Windows event loop fix
+if sys.platform == 'win32':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 # Main header
 st.title("🔬 Multi-Agent AI Deep Researcher")
@@ -159,14 +127,10 @@ with col1:
         else:
             st.session_state.processing = True
             
-            if st.session_state.get("mock_mode", False):
-                # Run mock workflow
-                results = asyncio.run(simulate_research(selected_agents, domain))
-                st.session_state.research_results = results
-                st.session_state.processing = False
-                st.rerun()
-            else:
-                # Run real workflow
+            # Show progress
+            progress_container = st.container()
+            
+            with progress_container:
                 progress_bar = st.progress(0)
                 status_text = st.empty()
                 
@@ -174,18 +138,21 @@ with col1:
                     # Create workflow
                     workflow = ResearchWorkflow()
                     
-                    # Execute research
-                    with st.spinner("Initializing agents..."):
-                        status_text.text("Starting research workflow...")
-                        progress_bar.progress(20)
-                        
-                        # Run workflow (async)
-                        results = asyncio.run(
-                            workflow.execute(query, domain, selected_agents)
-                        )
-                        
-                        progress_bar.progress(100)
-                        status_text.text("Research complete!")
+                    # Update progress
+                    status_text.text("🔄 Initializing agents...")
+                    progress_bar.progress(20)
+                    
+                    # Execute research (async)
+                    status_text.text(f"🔍 Researching: {query[:50]}...")
+                    progress_bar.progress(40)
+                    
+                    # Run async workflow
+                    results = asyncio.run(
+                        workflow.execute(query, domain, selected_agents)
+                    )
+                    
+                    progress_bar.progress(100)
+                    status_text.text("✅ Research complete!")
                     
                     # Store results
                     st.session_state.research_results = results
@@ -216,10 +183,12 @@ with col1:
                     st.session_state.processing = False
                     progress_bar.empty()
                     status_text.empty()
+                    st.rerun()
 
 with col2:
     st.subheader("Results & Cost")
     render_cost_tracker(selected_agents)
+    
     # Results section
     if st.session_state.research_results:
         st.markdown("---")
@@ -233,7 +202,7 @@ with col2:
         with st.expander("Quick Tips"):
             st.markdown("""
             - **Choose your domain** carefully for better agent recommendations
-            - **Select multiple agents** for comprehensive analysis
+            - **Select Web Research** to use Perplexity AI for deep search
             - **Be specific** in your research question for better results
             - **Check cost estimates** before starting research
             - **View history** to review past queries
