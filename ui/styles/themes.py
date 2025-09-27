@@ -19,6 +19,57 @@ CUSTOM_CSS = """
         padding-top: 2rem;
         padding-bottom: 2rem;
     }
+
+    /* Agent selection cards */
+    .agent-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1rem;
+        background: white;
+        width: 100%;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+        cursor: pointer;
+    }
+    .agent-card:hover {
+        border-color: #5a67d8;
+        box-shadow: 0 12px 20px rgba(90, 103, 216, 0.2);
+    }
+    .agent-card-selected {
+        border-width: 2px;
+        border-color: #5a67d8;
+        background: #f0f2ff;
+    }
+
+    .agent-card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .agent-card-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef2ff;
+        color: #5a67d8;
+        border-radius: 12px;
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        font-size: 1.2rem;
+    }
+
+    .agent-card-title {
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .agent-card-description {
+        font-size: 0.85rem;
+        color: #4a5568;
+        margin-top: 0.5rem;
+    }
     
     /* Metrics */
     [data-testid="stMetricValue"] {
@@ -59,7 +110,7 @@ CUSTOM_CSS = """
     }
     
     /* Progress bars */
-    .stProgress > div > div > div > div {
+    .stProgress > div > div > div {
         background-color: #5a67d8;
     }
 </style>
