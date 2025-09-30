@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional, Tuple
 
 from langchain_openai import ChatOpenAI
 
-from src.utils.config_loader import get_openrouter_api_key
+from utils.config_loader import get_openrouter_api_key
 
 try:
     import tiktoken  # type: ignore

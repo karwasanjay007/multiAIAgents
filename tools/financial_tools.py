@@ -7,8 +7,8 @@ from typing import List, Tuple
 
 import requests
 
-from src.utils.llm_registry import LLMCallMetrics, invoke_llm, zero_metrics
-from src.utils.structured_data import build_structured_record
+from utils.llm_registry import LLMCallMetrics, invoke_llm, zero_metrics
+from utils.structured_data import build_structured_record
 
 FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
 ALPHAVANTAGE_API_KEY = os.getenv("ALPHAVANTAGE_API_KEY")

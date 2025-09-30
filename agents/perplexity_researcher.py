@@ -6,11 +6,11 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from src.graph.state import ResearchState
-from src.tools.perplexity_client import PerplexityClient
-from src.utils.config_loader import get_perplexity_api_key
-from src.utils.llm_registry import LLMCallMetrics
-from src.utils.structured_data import build_structured_record
+from graph.state import ResearchState
+from tools.perplexity_client import PerplexityClient
+from utils.config_loader import get_perplexity_api_key
+from utils.llm_registry import LLMCallMetrics
+from utils.structured_data import build_structured_record
 
 _PROMPT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "perplexity_prompt.txt"
 _DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "perplexity_prompt_default.txt"

@@ -22,7 +22,7 @@ except ImportError:  # pragma: no cover - optional dependency
 
 from sentence_transformers import SentenceTransformer
 
-from src.graph.state import ResearchState
+from graph.state import ResearchState
 
 _DB_DIR = Path(__file__).resolve().parents[2] / "data" / "vector_store"
 _TABLE_NAME = "research_chunks"

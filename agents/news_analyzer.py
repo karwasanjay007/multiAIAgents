@@ -6,10 +6,10 @@ from typing import Any, Dict, List
 
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
-from src.graph.state import ResearchState
-from src.tools.news_tools import news_api_tool, news_search
-from src.utils.llm_registry import get_llm
-from src.utils.structured_data import build_structured_record
+from graph.state import ResearchState
+from tools.news_tools import news_api_tool, news_search
+from utils.llm_registry import get_llm
+from utils.structured_data import build_structured_record
 
 llm = get_llm("research_assistant")
 embeddings = HuggingFaceEmbeddings()

@@ -6,7 +6,7 @@ from typing import List
 
 import requests
 
-from src.utils.structured_data import build_structured_record
+from utils.structured_data import build_structured_record
 
 TWITTER_BEARER_TOKEN = os.getenv("TWITTER_BEARER_TOKEN")
 

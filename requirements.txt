@@ -35,17 +35,31 @@ yt-dlp
 # Audio/transcription
 openai-whisper
 torch
-ffmpeg
+torchaudio
+ffmpeg-python
 
 # Utilities and environment
 pandas
 python-dotenv
 anyio
 typing-extensions
+pydantic
+pydantic-settings
 
 # PDF/text generation
 reportlab
 markdown2
+python-docx
+
+# XML/HTML parsing
+lxml
+beautifulsoup4
+
+# Additional utilities
+numpy
+tqdm
+jsonschema
 
 # Dev/test
 pytest
+pytest-asyncio

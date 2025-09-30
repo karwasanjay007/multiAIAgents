@@ -6,8 +6,8 @@ import time
 from pathlib import Path
 from typing import Dict, List
 
-from src.agent.vector_pipeline import initialize_vector_store, _DB_DIR
-from src.graph.state import ResearchState
+from agents.vector_pipeline import initialize_vector_store, _DB_DIR
+from graph.state import ResearchState
 
 _ARCHIVE_DIR = Path(__file__).resolve().parents[2] / "data" / "json"
 

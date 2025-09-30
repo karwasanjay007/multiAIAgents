@@ -1,19 +1,19 @@
 """Graph builder for the research workflow."""
 from langgraph.graph import StateGraph, END
 
-from src.graph.state import ResearchState
-from src.agent.orchestrator import create_research_plan
-from src.agent.web_researcher import research_web
-from src.agent.academic_researcher import research_academic_papers
-from src.agent.news_analyzer import analyze_news
-from src.agent.social_analyzer import analyze_social
-from src.agent.financial_analyzer import analyze_financial
-from src.agent.perplexity_researcher import research_perplexity
-from src.agent.youtube_researcher import analyze_youtube
-from src.agent.cleanup_agent import cleanup_archives
-from src.agent.data_archiver import archive_state
-from src.agent.vector_pipeline import store_in_vector_db, retrieve_from_vector_db
-from src.agent.synthesizer import generate_final_report
+from graph.state import ResearchState
+from agents.orchestrator import create_research_plan
+from agents.web_researcher import research_web
+from agents.academic_researcher import research_academic_papers
+from agents.news_analyzer import analyze_news
+from agents.social_analyzer import analyze_social
+from agents.financial_analyzer import analyze_financial
+from agents.perplexity_researcher import research_perplexity
+from agents.youtube_researcher import analyze_youtube
+from agents.cleanup_agent import cleanup_archives
+from agents.data_archiver import archive_state
+from agents.vector_pipeline import store_in_vector_db, retrieve_from_vector_db
+from agents.synthesizer import generate_final_report
 
 
 # Mapping between conditional branch names and agent node identifiers.

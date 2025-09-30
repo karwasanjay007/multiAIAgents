@@ -4,9 +4,9 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, List
 
-from src.graph.state import ResearchState
-from src.tools.web_search_tools import duckduckgo_search, serpapi_search, tavily_search
-from src.utils.structured_data import build_structured_record
+from graph.state import ResearchState
+from tools.web_search_tools import duckduckgo_search, serpapi_search, tavily_search
+from utils.structured_data import build_structured_record
 
 
 def _normalize_results(results: Any, limit: int) -> List[Any]:

@@ -4,8 +4,8 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, List
 
-from src.graph.state import ResearchState
-from src.tools.financial_tools import get_financial_news, is_financial_intent
+from graph.state import ResearchState
+from tools.financial_tools import get_financial_news, is_financial_intent
 
 
 def _normalize_results(results: Any, limit: int) -> List[Any]:

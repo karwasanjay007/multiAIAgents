@@ -7,7 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict
 
-from src.graph.state import ResearchState
+from graph.state import ResearchState
 
 _DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "json"
 

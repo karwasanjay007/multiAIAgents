@@ -1,7 +1,7 @@
 """Planning utilities for orchestrating the research workflow."""
 from __future__ import annotations
 
-from src.graph.state import ResearchState
+from graph.state import ResearchState
 
 
 def create_research_plan(state: ResearchState) -> dict:

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple
 from langchain_community.tools import ArxivQueryRun, DuckDuckGoSearchRun
 from langchain_community.utilities.arxiv import ArxivAPIWrapper
 
-from src.utils.structured_data import build_structured_record
+from utils.structured_data import build_structured_record
 
 __all__ = ["arxiv_tool", "scholar_search", "fetch_arxiv_structured"]
 

@@ -26,10 +26,10 @@ try:
 except ImportError:  # pragma: no cover - optional dependency
     YoutubeDL = None
 
-from src.graph.state import ResearchState
-from src.utils.config_loader import get_youtube_api_key
-from src.utils.llm_registry import invoke_llm, zero_metrics
-from src.utils.structured_data import build_structured_record
+from graph.state import ResearchState
+from utils.config_loader import get_youtube_api_key
+from utils.llm_registry import invoke_llm, zero_metrics
+from utils.structured_data import build_structured_record
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data" / "youtube"
 DATA_DIR.mkdir(parents=True, exist_ok=True)

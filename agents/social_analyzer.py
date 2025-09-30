@@ -4,8 +4,8 @@ from __future__ import annotations
 import time
 from typing import Dict
 
-from src.graph.state import ResearchState
-from src.tools.social_tools import twitter_search
+from graph.state import ResearchState
+from tools.social_tools import twitter_search
 
 
 def analyze_social(state: ResearchState) -> dict:
