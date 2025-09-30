@@ -5,3 +5,5 @@ venv/
 data/cache/*
 data/exports/*
 chroma_db/
+.streamlit/
+.venv/
