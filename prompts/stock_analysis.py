@@ -1,1 +1,0 @@
-STOCK_GOD_PROMPT = ''

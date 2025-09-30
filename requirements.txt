@@ -1,13 +1,51 @@
-streamlit==1.29.0
-langchain==0.1.0
-langgraph==0.0.20
-openai==1.6.1
-chromadb==0.4.18
-aiohttp==3.9.1
-pandas==2.1.4
-pytest==7.4.3
-reportlab==4.0.4
+# Core app and UI
+streamlit
 
-# Add to existing requirements.txt:
-aiohttp==3.9.1
-python-dotenv==1.0.0
+# LangGraph and LangChain ecosystem
+langgraph
+langchain
+langchain-openai
+langchain-community
+
+# LLMs and API clients
+openai
+tiktoken
+
+# Vector DB and embeddings
+chromadb
+huggingface_hub[hf_xet]
+sentence-transformers
+lancedb
+pyarrow
+
+# Web/API integrations
+aiohttp
+requests
+serpapi
+tavily-python
+duckduckgo-search
+ddgs
+newsapi-python
+arxiv
+pymupdf
+google-api-python-client
+youtube-transcript-api
+yt-dlp
+
+# Audio/transcription
+openai-whisper
+torch
+ffmpeg
+
+# Utilities and environment
+pandas
+python-dotenv
+anyio
+typing-extensions
+
+# PDF/text generation
+reportlab
+markdown2
+
+# Dev/test
+pytest

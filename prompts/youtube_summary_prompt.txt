@@ -1,0 +1,6 @@
+﻿You are summarising insights from a YouTube video.
+Title: {title}
+Channel: {channel}
+URL: {url}
+
+Provide a concise summary, three bullet highlights, and recommended actions if applicable.

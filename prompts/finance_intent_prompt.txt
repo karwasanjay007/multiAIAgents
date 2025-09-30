@@ -1,0 +1,2 @@
+﻿Is the following query about finance, stocks, or investing? Answer yes or no only.
+Query: {query}
