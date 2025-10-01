@@ -1,84 +1,171 @@
 # ============================================================================
-# FILE: workflows/langgraph_workflow.py (COMPLETE INTEGRATION)
+# FILE: workflows/langgraph_workflow.py
+# COMPLETE FINAL VERSION - All fixes integrated
 # ============================================================================
+
 import asyncio
+import os
+import re
 from datetime import datetime
 from typing import Dict, List
-import os
-from dotenv import load_dotenv
+from pathlib import Path
+
 
 class ResearchWorkflow:
-    """Complete research workflow with all three agents integrated"""
+    """Orchestrates multi-agent research workflow"""
     
     def __init__(self):
         self.perplexity_agent = None
         self.youtube_agent = None
         self.api_agent = None
-        # Load env variables when workflow is initialized
-        load_dotenv()
+        self.prompts_dir = Path(__file__).parent.parent / "prompts"
     
-    async def execute(self, query: str, domain: str, agents: List[str]) -> Dict:
-        """Execute research workflow with selected agents"""
+    def _clean_text(self, text: str) -> str:
+        """Remove HTML/XML tags and special characters"""
+        if not text or not isinstance(text, str):
+            return ""
         
-        results = {
-            "query": query,
-            "domain": domain,
-            "timestamp": datetime.now().isoformat(),
-            "summary": "",
-            "key_findings": [],
-            "insights": [],
-            "agent_results": [],
-            "total_cost": 0,
-            "total_tokens": 0,
-            "execution_time": 0,
-            "agents_used": agents
-        }
+        text = re.sub(r'<[^>]+>', '', text)
+        text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+        text = re.sub(r'\*([^*]+)\*', r'\1', text)
+        text = re.sub(r'__([^_]+)__', r'\1', text)
+        text = re.sub(r'_([^_]+)_', r'\1', text)
+        text = re.sub(r'\s+', ' ', text)
+        text = re.sub(r'[^\w\s.,!?;:()\-\'\"\n]', '', text)
+        
+        return text.strip()
+    
+    def _clean_list_items(self, items: List) -> List[str]:
+        """Clean list items and remove duplicates"""
+        if not items:
+            return []
+        
+        cleaned = []
+        seen = set()
+        
+        for item in items:
+            if not item:
+                continue
+            
+            text = self._clean_text(str(item))
+            
+            if text and text not in seen:
+                cleaned.append(text)
+                seen.add(text)
+        
+        return cleaned
+    
+    async def execute(self, query: str, domain: str, agent_selection: List[str]) -> Dict:
+        """
+        Execute research workflow with selected agents
+        
+        Args:
+            query: Research question
+            domain: Domain (technology, medical, academic, stocks, general)
+            agent_selection: List of agent names (case-insensitive)
+            
+        Returns:
+            Consolidated results
+        """
+        
+        print(f"\n🚀 Starting research workflow")
+        print(f"   Query: {query}")
+        print(f"   Domain: {domain}")
+        print(f"   Agents: {agent_selection}")
         
         start_time = datetime.now()
         
-        # Execute agents in parallel
+        # Initialize results structure
+        results = {
+            "query": query,
+            "domain": domain,
+            "timestamp": start_time.isoformat(),
+            "agent_results": [],
+            "summary": "",
+            "key_findings": [],
+            "insights": [],
+            "total_sources": 0,
+            "total_cost": 0.0,
+            "total_tokens": 0,
+            "execution_time": 0.0
+        }
+        
+        # Normalize agent names (handle both 'perplexity' and 'Perplexity')
+        agent_selection_lower = [agent.lower() for agent in agent_selection]
+        
+        # Create tasks for parallel execution
         tasks = []
         
-        if "perplexity" in agents:
-            tasks.append(self._execute_perplexity(query, domain))
+        if "perplexity" in agent_selection_lower:
+            print("   ✅ Adding Perplexity agent to execution queue")
+            tasks.append(("perplexity", self._execute_perplexity(query, domain)))
         
-        if "youtube" in agents:
-            tasks.append(self._execute_youtube(query, domain))
+        if "youtube" in agent_selection_lower:
+            print("   ✅ Adding YouTube agent to execution queue")
+            tasks.append(("youtube", self._execute_youtube(query, domain)))
         
-        if "api" in agents:
-            tasks.append(self._execute_api(query, domain))
+        if "api" in agent_selection_lower:
+            print("   ✅ Adding API agent to execution queue")
+            tasks.append(("api", self._execute_api(query, domain)))
         
-        # Wait for all agents to complete
-        if tasks:
-            agent_responses = await asyncio.gather(*tasks, return_exceptions=True)
+        if not tasks:
+            print("   ⚠️  No agents selected!")
+            results["error"] = "No agents selected for execution"
+            return results
+        
+        print(f"\n⏳ Executing {len(tasks)} agents in parallel...")
+        
+        # Execute all agents in parallel
+        task_coroutines = [task[1] for task in tasks]
+        agent_responses = await asyncio.gather(*task_coroutines, return_exceptions=True)
+        
+        # Process responses
+        for idx, response in enumerate(agent_responses):
+            agent_name = tasks[idx][0]
             
-            # Process responses
-            for response in agent_responses:
-                if isinstance(response, Exception):
-                    print(f"❌ Agent failed: {response}")
-                    continue
-                
-                if response and isinstance(response, dict):
-                    results["agent_results"].append(response)
-                    results["total_cost"] += response.get("cost", 0)
-                    results["total_tokens"] += response.get("tokens", 0)
+            if isinstance(response, Exception):
+                print(f"   ❌ {agent_name} agent error: {response}")
+                results["agent_results"].append({
+                    "agent_name": agent_name,
+                    "error": str(response),
+                    "sources": [],
+                    "cost": 0,
+                    "tokens": 0
+                })
+                continue
+            
+            if response and isinstance(response, dict):
+                print(f"   ✅ {agent_name} agent completed: {len(response.get('sources', []))} sources")
+                results["agent_results"].append(response)
+                results["total_sources"] += len(response.get("sources", []))
+                results["total_cost"] += response.get("cost", 0)
+                results["total_tokens"] += response.get("tokens", 0)
         
-        # Consolidate results
+        # Consolidate and clean results
         self._consolidate_results(results)
         
+        # Calculate execution time
         end_time = datetime.now()
         results["execution_time"] = (end_time - start_time).total_seconds()
+        
+        print(f"\n✅ Research complete:")
+        print(f"   Total sources: {results['total_sources']}")
+        print(f"   Total cost: ${results['total_cost']:.4f}")
+        print(f"   Execution time: {results['execution_time']:.1f}s")
         
         return results
     
     async def _execute_perplexity(self, query: str, domain: str) -> Dict:
         """Execute Perplexity agent"""
         try:
+            print(f"\n🌐 Initializing Perplexity agent...")
+            
             from agents.perplexity_agent import PerplexityAgent
             
             api_key = os.getenv("PERPLEXITY_API_KEY")
             
             if not api_key:
+                print(f"   ❌ PERPLEXITY_API_KEY not found in environment")
                 return {
                     "agent_name": "perplexity",
                     "error": "PERPLEXITY_API_KEY not found",
@@ -87,53 +174,79 @@ class ResearchWorkflow:
                     "tokens": 0
                 }
             
+            print(f"   ✅ API key loaded: {api_key[:10]}...")
+            
             if not self.perplexity_agent:
                 self.perplexity_agent = PerplexityAgent(api_key)
+                print(f"   ✅ Agent created: {self.perplexity_agent.name}")
             
-            print(f"🔍 Executing Perplexity agent for: {query}")
+            print(f"   🔍 Executing search for: '{query}'")
+            print(f"   📁 Domain: {domain}")
             
-            perplexity_result = await self.perplexity_agent.execute(
+            # Execute agent
+            result = await self.perplexity_agent.execute(
                 query=query,
                 domain=domain,
                 max_tokens=2000
             )
             
-            if perplexity_result.get("success"):
-                # Format for UI
-                sources = []
-                for source in perplexity_result.get("sources", []):
-                    sources.append({
-                        "title": source.get("title", "Untitled"),
-                        "url": source.get("url", ""),
-                        "summary": source.get("snippet", "No description"),
-                        "confidence": 4.5,
-                        "date": perplexity_result.get("timestamp", "")[:10]
-                    })
-                
-                print(f"✅ Perplexity completed: {len(sources)} sources")
-                
+            print(f"   ⏱️  Agent execution complete")
+            
+            if not result:
+                print(f"   ❌ No result returned from agent")
                 return {
                     "agent_name": "perplexity",
-                    "sources": sources,
-                    "summary": perplexity_result.get("executive_summary", ""),
-                    "findings": perplexity_result.get("key_findings", []),
-                    "insights": perplexity_result.get("insights", []),
-                    "cost": perplexity_result.get("estimated_cost", 0),
-                    "tokens": perplexity_result.get("tokens_used", 0),
-                    "model": perplexity_result.get("model", "sonar-pro")
-                }
-            else:
-                print(f"❌ Perplexity failed: {perplexity_result.get('error')}")
-                return {
-                    "agent_name": "perplexity",
-                    "error": perplexity_result.get("error", "Unknown error"),
+                    "error": "No result returned",
                     "sources": [],
                     "cost": 0,
                     "tokens": 0
                 }
-                
+            
+            if not result.get("success"):
+                error = result.get("error", "Unknown error")
+                print(f"   ❌ Agent returned error: {error}")
+                return {
+                    "agent_name": "perplexity",
+                    "error": error,
+                    "sources": [],
+                    "cost": 0,
+                    "tokens": 0
+                }
+            
+            # Format sources
+            sources = []
+            for source in result.get("sources", []):
+                sources.append({
+                    "title": self._clean_text(source.get("title", "Untitled")),
+                    "url": source.get("url", ""),
+                    "summary": self._clean_text(source.get("snippet", "No description")),
+                    "confidence": 4.5,
+                    "date": result.get("timestamp", "")[:10]
+                })
+            
+            print(f"   ✅ Perplexity success: {len(sources)} sources collected")
+            
+            return {
+                "agent_name": "perplexity",
+                "sources": sources,
+                "summary": self._clean_text(result.get("executive_summary", "")),
+                "findings": self._clean_list_items(result.get("key_findings", [])),
+                "insights": self._clean_list_items(result.get("insights", [])),
+                "cost": result.get("estimated_cost", 0),
+                "tokens": result.get("tokens_used", 0)
+            }
+            
+        except ImportError as e:
+            print(f"   ❌ Import error: {e}")
+            return {
+                "agent_name": "perplexity",
+                "error": f"Import error: {str(e)}",
+                "sources": [],
+                "cost": 0,
+                "tokens": 0
+            }
         except Exception as e:
-            print(f"❌ Perplexity exception: {e}")
+            print(f"   ❌ Unexpected error: {e}")
             import traceback
             traceback.print_exc()
             return {
@@ -147,196 +260,253 @@ class ResearchWorkflow:
     async def _execute_youtube(self, query: str, domain: str) -> Dict:
         """Execute YouTube agent"""
         try:
-            from agents.youtube_researcher import analyze_youtube
-            from graph.state import ResearchState
+            print(f"\n📹 Initializing YouTube agent...")
             
             api_key = os.getenv("YOUTUBE_API_KEY")
             
             if not api_key:
+                print(f"   ⚠️  YOUTUBE_API_KEY not configured (optional)")
                 return {
                     "agent_name": "youtube",
-                    "error": "YOUTUBE_API_KEY not found",
+                    "error": "YOUTUBE_API_KEY not configured",
                     "sources": [],
                     "cost": 0,
                     "tokens": 0
                 }
             
-            print(f"📹 Executing YouTube agent for: {query}")
+            from agents.youtube_researcher import analyze_youtube
             
-            # Create state for YouTube agent
-            state: ResearchState = {
+            print(f"   🔍 Searching videos for: '{query}'")
+            
+            # Execute YouTube analysis
+            state = {
                 "topic": query,
                 "domain": domain,
                 "mode": "extended"
             }
             
-            # Execute YouTube agent
-            youtube_result = analyze_youtube(state)
+            result = analyze_youtube(state)
+            youtube_data = result.get("youtube_results", {})
             
-            # Extract results
-            youtube_data = youtube_result.get("youtube_results", {})
-            sources_list = youtube_data.get("sources", [])
+            sources = []
+            for video in youtube_data.get("sources", []):
+                sources.append({
+                    "title": self._clean_text(video.get("title", "Untitled")),
+                    "url": video.get("url", ""),
+                    "summary": self._clean_text(video.get("description", "No description")),
+                    "confidence": 3.5,
+                    "date": video.get("published_at", "")[:10]
+                })
             
-            # Format sources for UI
-            formatted_sources = []
-            for source in sources_list:
-                items = source.get("items", [])
-                for item in items:
-                    formatted_sources.append({
-                        "title": item.get("title", "Untitled Video"),
-                        "url": item.get("source", ""),
-                        "summary": item.get("summary", "No summary available"),
-                        "confidence": 4.0,
-                        "date": item.get("published_date", "")[:10] if item.get("published_date") else ""
-                    })
-            
-            print(f"✅ YouTube completed: {len(formatted_sources)} videos")
+            print(f"   ✅ YouTube success: {len(sources)} videos found")
             
             return {
                 "agent_name": "youtube",
-                "sources": formatted_sources,
-                "cost": youtube_data.get("cost", 0.15),
-                "tokens": youtube_data.get("tokens", 0),
-                "video_count": len(formatted_sources),
-                "processing_time": youtube_data.get("elapsed", 0)
+                "sources": sources,
+                "summary": self._clean_text(youtube_data.get("summary", "")),
+                "findings": self._clean_list_items(youtube_data.get("findings", [])),
+                "insights": self._clean_list_items(youtube_data.get("insights", [])),
+                "cost": 0,
+                "tokens": 0
             }
             
         except Exception as e:
-            print(f"❌ YouTube exception: {e}")
-            import traceback
-            traceback.print_exc()
+            print(f"   ❌ YouTube error: {e}")
             return {
                 "agent_name": "youtube",
-                "error": f"Exception: {str(e)}",
+                "error": str(e),
                 "sources": [],
                 "cost": 0,
                 "tokens": 0
             }
     
     async def _execute_api(self, query: str, domain: str) -> Dict:
-        """Execute API agent (academic papers + news)"""
+        """Execute API agent - COMPLETE WORKING VERSION"""
         try:
-            from agents.academic_researcher import research_academic_papers
-            from agents.news_analyzer import analyze_news
-            from graph.state import ResearchState
+            print(f"\n📚 Initializing API agent...")
             
-            print(f"📚 Executing API agent for: {query}")
+            from agents.api_agent import APIAgent
             
-            # Create state for API agent
-            state: ResearchState = {
-                "topic": query,
-                "domain": domain,
-                "mode": "extended"
-            }
+            if not self.api_agent:
+                self.api_agent = APIAgent()
             
-            # Execute both academic and news agents
-            academic_result = research_academic_papers(state)
-            news_result = analyze_news(state)
+            print(f"   🔍 Executing API agent...")
             
-            # Extract and combine sources
+            # Execute and get result
+            result = await self.api_agent.execute(query=query, domain=domain)
+            
+            # Debug: Print what we got
+            print(f"   📦 API agent returned: {type(result)}")
+            print(f"   📦 Papers in result: {len(result.get('papers', []))}")
+            
+            # Handle None or empty result
+            if not result or not isinstance(result, dict):
+                print(f"   ❌ API agent returned invalid result")
+                return {
+                    "agent_name": "api",
+                    "sources": [],
+                    "summary": "",
+                    "findings": [],
+                    "insights": [],
+                    "cost": 0,
+                    "tokens": 0,
+                    "error": "Invalid result from API agent"
+                }
+            
+            # Extract papers
+            papers = result.get("papers", [])
+            
+            print(f"   📄 Processing {len(papers)} papers...")
+            
+            # Format sources for UI
             formatted_sources = []
             
-            # Process academic results
-            academic_data = academic_result.get("academic_results", {})
-            for source in academic_data.get("sources", []):
-                items = source.get("items", [])
-                for item in items:
+            for idx, paper in enumerate(papers, 1):
+                try:
+                    # Safely extract all fields
+                    title = paper.get("title") if isinstance(paper, dict) else str(paper)
+                    url = paper.get("url", "") if isinstance(paper, dict) else ""
+                    summary = paper.get("summary", "") if isinstance(paper, dict) else ""
+                    paper_type = paper.get("type", "unknown") if isinstance(paper, dict) else "unknown"
+                    published = paper.get("published", "") if isinstance(paper, dict) else ""
+                    authors = paper.get("authors", []) if isinstance(paper, dict) else []
+                    
+                    # Clean text
+                    clean_title = self._clean_text(title) if title else f"Source {idx}"
+                    clean_summary = self._clean_text(summary) if summary else "No description"
+                    
+                    # Add to sources
                     formatted_sources.append({
-                        "title": item.get("title", "Untitled Paper"),
-                        "url": item.get("source", ""),
-                        "summary": item.get("summary", "No summary available"),
-                        "confidence": 4.2,
-                        "date": item.get("published_date", "")[:10] if item.get("published_date") else "",
-                        "source_type": "academic"
+                        "title": clean_title,
+                        "url": url if url else "",
+                        "summary": clean_summary,
+                        "confidence": 4.2 if paper_type == "academic" else 3.8,
+                        "date": published[:10] if published else "",
+                        "source_type": paper_type,
+                        "authors": authors if isinstance(authors, list) else []
                     })
+                    
+                except Exception as e:
+                    print(f"   ⚠️  Error processing paper {idx}: {e}")
+                    continue
             
-            # Process news results
-            news_data = news_result.get("news_results", {})
-            for source in news_data.get("sources", []):
-                items = source.get("items", [])
-                for item in items:
-                    formatted_sources.append({
-                        "title": item.get("title", "Untitled Article"),
-                        "url": item.get("source", ""),
-                        "summary": item.get("summary", "No summary available"),
-                        "confidence": 3.8,
-                        "date": item.get("published_date", "")[:10] if item.get("published_date") else "",
-                        "source_type": "news"
-                    })
+            print(f"   ✅ Formatted {len(formatted_sources)} sources")
             
-            print(f"✅ API completed: {len(formatted_sources)} sources")
+            # Extract other fields
+            summary = result.get("summary", "")
+            findings = result.get("findings", [])
+            insights = result.get("insights", [])
             
-            return {
+            # Clean lists
+            clean_findings = self._clean_list_items(findings) if findings else []
+            clean_insights = self._clean_list_items(insights) if insights else []
+            
+            # Generate fallback summary if needed
+            if not summary:
+                academic_count = len([s for s in formatted_sources if s.get("source_type") == "academic"])
+                news_count = len([s for s in formatted_sources if s.get("source_type") == "news"])
+                summary = f"Retrieved {len(formatted_sources)} sources: {academic_count} academic papers and {news_count} news articles"
+            
+            final_result = {
                 "agent_name": "api",
                 "sources": formatted_sources,
-                "cost": 0.35,  # Estimated cost
-                "tokens": 0,
-                "academic_count": len([s for s in formatted_sources if s.get("source_type") == "academic"]),
-                "news_count": len([s for s in formatted_sources if s.get("source_type") == "news"])
+                "summary": self._clean_text(summary),
+                "findings": clean_findings,
+                "insights": clean_insights,
+                "cost": 0,
+                "tokens": 0
             }
             
+            print(f"   ✅ API agent complete: {len(formatted_sources)} sources")
+            
+            return final_result
+            
+        except ImportError as e:
+            print(f"   ❌ Import error: {e}")
+            return {
+                "agent_name": "api",
+                "sources": [],
+                "summary": "",
+                "findings": [],
+                "insights": [],
+                "cost": 0,
+                "tokens": 0,
+                "error": f"Import error: {str(e)}"
+            }
         except Exception as e:
-            print(f"❌ API exception: {e}")
+            print(f"   ❌ Unexpected error: {e}")
             import traceback
             traceback.print_exc()
             return {
                 "agent_name": "api",
-                "error": f"Exception: {str(e)}",
                 "sources": [],
+                "summary": "",
+                "findings": [],
+                "insights": [],
                 "cost": 0,
-                "tokens": 0
+                "tokens": 0,
+                "error": f"Error: {str(e)}"
             }
     
     def _consolidate_results(self, results: Dict):
-        """Consolidate results from all agents with better extraction"""
+        """Consolidate results from all agents - ENHANCED"""
         
         all_findings = []
         all_insights = []
         best_summary = ""
         
-        for agent_result in results["agent_results"]:
-            agent_name = agent_result.get("agent_name", "")
+        print(f"\n📊 Consolidating results...")
+        print(f"   Agent results count: {len(results.get('agent_results', []))}")
+        
+        for idx, agent_result in enumerate(results.get("agent_results", []), 1):
+            agent_name = agent_result.get("agent_name", f"agent_{idx}")
             
-            # Get findings from agent
+            print(f"\n   {idx}. Processing {agent_name}:")
+            
+            # Check for error
+            if agent_result.get("error"):
+                print(f"      ⚠️  Has error: {agent_result['error']}")
+                continue
+            
+            # Check for sources
+            sources = agent_result.get("sources", [])
+            print(f"      📚 Sources: {len(sources)}")
+            
+            # Check for findings
             findings = agent_result.get("findings", [])
             if findings and isinstance(findings, list):
-                # Add agent attribution
-                for finding in findings:
-                    if finding and str(finding).strip():
-                        all_findings.append(f"{str(finding).strip()}")
+                print(f"      🔍 Findings: {len(findings)}")
+                all_findings.extend([str(f).strip() for f in findings if f])
             
-            # Get insights from agent  
+            # Check for insights
             insights = agent_result.get("insights", [])
             if insights and isinstance(insights, list):
-                for insight in insights:
-                    if insight and str(insight).strip():
-                        all_insights.append(f"{str(insight).strip()}")
+                print(f"      💡 Insights: {len(insights)}")
+                all_insights.extend([str(i).strip() for i in insights if i])
             
-            # Get best summary (prefer Perplexity)
+            # Check for summary
             summary = agent_result.get("summary", "")
-            if summary and isinstance(summary, str):
-                if agent_name == "perplexity" and not best_summary:
+            if summary and isinstance(summary, str) and summary.strip():
+                print(f"      📝 Summary: {len(summary)} chars")
+                if agent_name == "perplexity" or not best_summary:
                     best_summary = summary
-                elif not best_summary:
-                    best_summary = summary
         
-        # Deduplicate and limit
-        all_findings = list(dict.fromkeys(all_findings))  # Remove duplicates preserving order
-        all_insights = list(dict.fromkeys(all_insights))
+        # Clean and deduplicate
+        results["key_findings"] = self._clean_list_items(all_findings)[:10]
+        results["insights"] = self._clean_list_items(all_insights)[:8]
+        results["summary"] = self._clean_text(best_summary) if best_summary else self._generate_fallback_summary(results)
         
-        results["key_findings"] = all_findings[:10]
-        results["insights"] = all_insights[:8]
+        print(f"\n   ✅ Consolidated:")
+        print(f"      - Findings: {len(results['key_findings'])}")
+        print(f"      - Insights: {len(results['insights'])}")
+        print(f"      - Summary: {len(results['summary'])} chars")
+    
+    def _generate_fallback_summary(self, results: Dict) -> str:
+        """Generate fallback summary"""
+        agent_count = len([r for r in results.get("agent_results", []) if not r.get("error")])
+        total_sources = results.get("total_sources", 0)
         
-        # Set summary
-        if best_summary:
-            results["summary"] = best_summary
-        else:
-            # Create a basic summary
-            agent_names = [r.get("agent_name", "").capitalize() for r in results["agent_results"]]
-            total_sources = sum(len(r.get("sources", [])) for r in results["agent_results"])
-            results["summary"] = (
-                f"Research completed using {len(agent_names)} specialized agents: "
-                f"{', '.join(agent_names)}. "
-                f"Collected {total_sources} sources from multiple channels including "
-                f"academic papers, news articles, and web research."
-            )
+        return (
+            f"Research completed using {agent_count} specialized agents. "
+            f"Collected {total_sources} sources from multiple channels."
+        )

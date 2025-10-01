@@ -1,5 +1,6 @@
 # ============================================================================
-# FILE: agents/perplexity_agent.py (FIXED)
+# FILE 2: agents/perplexity_agent.py  
+# COMPLETE REPLACEMENT - Copy entire content
 # ============================================================================
 from agents.base_agent import BaseAgent
 from services.perplexity_client import PerplexityClient
@@ -35,6 +36,7 @@ class PerplexityAgent(BaseAgent):
             Structured research results
         """
         
+        # Call the client's deep_search method
         result = await self.client.deep_search(
             query=query,
             domain=domain,

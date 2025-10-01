@@ -1,261 +1,317 @@
 # ============================================================================
-# FILE: ui/components/agent_cards.py (COMPLETE FIX)
+# FILE: ui/components/agent_cards.py (COMPLETE REWRITE - NO XML)
 # ============================================================================
 import streamlit as st
 from typing import List, Dict
-from config.constants import AGENT_COSTS, AGENT_TIMES
+from datetime import datetime
 
-def render_agent_cards(agents: List[str], processing: bool = False):
-    """Render agent status cards with proper data display"""
+def render_agent_cards(selected_agents: List[str], processing: bool = False):
+    """Render beautiful agent status cards with performance metrics"""
     
-    st.markdown("### 🤖 Agent Performance Stats")
-    
-    # Get results if available
-    results = st.session_state.get('research_results', {})
-    agent_results = results.get('agent_results', []) if results else []
-    
-    # Agent metadata
-    agent_info = {
-        "perplexity": {
-            "name": "Web Research",
-            "icon": "🌐",
-            "color": "#667eea"
-        },
-        "youtube": {
-            "name": "Video Analysis",
-            "icon": "📹",
-            "color": "#f093fb"
-        },
-        "api": {
-            "name": "Academic & News",
-            "icon": "📚",
-            "color": "#4facfe"
-        }
-    }
-    
-    # Custom CSS for cards
-    st.markdown("""
-    <style>
-    .perf-card {
-        background: white;
-        border: 2px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 24px;
-        margin: 12px 0;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .perf-card:hover {
-        border-color: #667eea;
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
-        transform: translateY(-4px);
-    }
-    .perf-icon {
-        font-size: 48px;
-        text-align: center;
-        margin-bottom: 12px;
-    }
-    .perf-title {
-        font-size: 18px;
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 20px;
-        color: #1f2937;
-    }
-    .perf-stat {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #f3f4f6;
-    }
-    .perf-stat:last-child {
-        border-bottom: none;
-    }
-    .perf-label {
-        font-size: 14px;
-        color: #6b7280;
-        font-weight: 500;
-    }
-    .perf-value {
-        font-size: 16px;
-        font-weight: 700;
-        color: #1f2937;
-    }
-    .perf-processing {
-        text-align: center;
-        padding: 8px;
-        background: #fef3c7;
-        border-radius: 8px;
-        color: #92400e;
-        font-size: 13px;
-        margin-top: 12px;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # Create columns for cards
-    num_agents = len(agents)
-    if num_agents == 0:
-        st.info("No agents selected")
+    if not selected_agents:
+        st.info("No agents selected. Please select research sources above.")
         return
     
-    cols = st.columns(num_agents)
+    st.markdown("### 📊 Agent Performance Stats")
     
-    # Create a map of agent results by name
-    agent_data_map = {}
-    for agent_result in agent_results:
-        agent_name = agent_result.get('agent_name', '')
-        if agent_name:
-            agent_data_map[agent_name] = agent_result
+    # Agent configuration with icons and colors
+    agent_config = {
+        "perplexity": {
+            "name": "Perplexity",
+            "icon": "🌐",
+            "color": "#667eea",
+            "gradient": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            "estimated_time": 30,  # seconds
+            "estimated_sources": 20,
+            "estimated_cost": 0.002,
+            "estimated_tokens": 2000
+        },
+        "youtube": {
+            "name": "YouTube",
+            "icon": "📹",
+            "color": "#ff0000",
+            "gradient": "linear-gradient(135deg, #ff0000 0%, #cc0000 100%)",
+            "estimated_time": 120,
+            "estimated_sources": 5,
+            "estimated_cost": 0.15,
+            "estimated_tokens": 500
+        },
+        "api": {
+            "name": "API Agent",
+            "icon": "📚",
+            "color": "#10b981",
+            "gradient": "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+            "estimated_time": 45,
+            "estimated_sources": 12,
+            "estimated_cost": 0.35,
+            "estimated_tokens": 1000
+        }
+    }
     
-    # Render cards
-    for idx, agent_id in enumerate(agents):
-        with cols[idx]:
-            info = agent_info.get(agent_id, {
-                "name": agent_id.capitalize(),
-                "icon": "🔹",
-                "color": "#667eea"
-            })
-            
-            # Get actual data for this agent
-            agent_data = agent_data_map.get(agent_id, {})
-            
-            # Extract stats
-            sources = agent_data.get('sources', [])
-            sources_count = len(sources) if isinstance(sources, list) else 0
-            
-            try:
-                cost = float(agent_data.get('cost', 0))
-            except (ValueError, TypeError):
-                cost = 0.0
-            
-            try:
-                tokens = int(agent_data.get('tokens', 0))
-            except (ValueError, TypeError):
-                tokens = 0
-            
-            # Status indicator
-            if processing and not agent_data:
-                status_html = f'<div class="perf-processing">⏳ Processing...</div>'
-            elif agent_data:
-                status_html = f'<div class="perf-processing" style="background: #d1fae5; color: #065f46;">✅ Complete</div>'
-            else:
-                status_html = ''
-            
-            # Render card
-            st.markdown(f"""
-            <div class="perf-card">
-                <div class="perf-icon">{info['icon']}</div>
-                <div class="perf-title" style="color: {info['color']};">{info['name']}</div>
-                
-                <div class="perf-stat">
-                    <span class="perf-label">Sources</span>
-                    <span class="perf-value">{sources_count}</span>
-                </div>
-                
-                <div class="perf-stat">
-                    <span class="perf-label">Cost</span>
-                    <span class="perf-value">${cost:.6f}</span>
-                </div>
-                
-                <div class="perf-stat">
-                    <span class="perf-label">Tokens</span>
-                    <span class="perf-value">{tokens:,}</span>
-                </div>
-                
-                {status_html}
-            </div>
-            """, unsafe_allow_html=True)
-
-
-def render_cost_breakdown(selected_agents: List[str]):
-    """Render detailed cost breakdown as an expander"""
-    
-    # Get actual results
+    # Get actual results if available
     results = st.session_state.get('research_results', {})
     agent_results = results.get('agent_results', []) if results else []
     
-    # Create agent data map
-    agent_data_map = {}
-    for agent_result in agent_results:
-        agent_name = agent_result.get('agent_name', '')
-        if agent_name:
-            agent_data_map[agent_name] = agent_result
+    # Create columns for agent cards
+    cols = st.columns(len(selected_agents))
     
-    # Agent display info
-    agent_display = {
-        "perplexity": {"icon": "🌐", "name": "Perplexity"},
-        "youtube": {"icon": "📹", "name": "Youtube"},
-        "api": {"icon": "📚", "name": "Api"}
-    }
-    
-    with st.expander("💡 Detailed Cost Breakdown", expanded=False):
-        st.markdown("""
-        <style>
-        .cost-breakdown-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            margin: 8px 0;
-            background: #f9fafb;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-        }
-        .cost-breakdown-item:hover {
-            background: #f3f4f6;
-            transform: translateX(4px);
-        }
-        .cost-breakdown-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .cost-breakdown-icon {
-            font-size: 24px;
-        }
-        .cost-breakdown-name {
-            font-weight: 600;
-            color: #1f2937;
-        }
-        .cost-breakdown-right {
-            text-align: right;
-        }
-        .cost-breakdown-cost {
-            font-weight: 700;
-            color: #667eea;
-            font-size: 16px;
-        }
-        .cost-breakdown-time {
-            font-size: 12px;
-            color: #9ca3af;
-        }
-        </style>
-        """, unsafe_allow_html=True)
+    for idx, agent_id in enumerate(selected_agents):
+        config = agent_config.get(agent_id, {})
         
-        for agent_id in selected_agents:
-            display_info = agent_display.get(agent_id, {"icon": "🔹", "name": agent_id.capitalize()})
+        if not config:
+            continue
             
-            # Get actual data
-            agent_data = agent_data_map.get(agent_id, {})
-            actual_cost = agent_data.get('cost', 0) if agent_data else 0
-            
-            # Fallback to estimated cost if no actual data
-            if actual_cost == 0:
-                actual_cost = AGENT_COSTS.get(agent_id, 0)
-            
-            estimated_time = AGENT_TIMES.get(agent_id, 0)
-            
-            st.markdown(f"""
-            <div class="cost-breakdown-item">
-                <div class="cost-breakdown-left">
-                    <span class="cost-breakdown-icon">{display_info['icon']}</span>
-                    <strong class="cost-breakdown-name">{display_info['name']}</strong>
+        with cols[idx]:
+            # Card container with custom styling
+            card_html = f"""
+            <div style="
+                background: white;
+                border-radius: 16px;
+                padding: 24px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+                border: 2px solid {config['color']}20;
+                transition: all 0.3s ease;
+                min-height: 380px;
+                position: relative;
+                overflow: hidden;
+            ">
+                <!-- Header with gradient background -->
+                <div style="
+                    background: {config['gradient']};
+                    margin: -24px -24px 20px -24px;
+                    padding: 20px;
+                    text-align: center;
+                    border-radius: 14px 14px 0 0;
+                ">
+                    <div style="font-size: 48px; margin-bottom: 8px;">{config['icon']}</div>
+                    <div style="color: white; font-size: 20px; font-weight: 600;">
+                        {config['name']}
+                    </div>
                 </div>
-                <div class="cost-breakdown-right">
-                    <div class="cost-breakdown-cost">${actual_cost:.3f}</div>
-                    <div class="cost-breakdown-time">~{estimated_time} sec</div>
+            """
+            
+            # Get actual data for this agent
+            actual_data = None
+            for agent_result in agent_results:
+                if agent_result.get('agent_name') == agent_id:
+                    actual_data = agent_result
+                    break
+            
+            if actual_data:
+                # Show actual vs estimated comparison
+                actual_sources = len(actual_data.get('sources', []))
+                actual_cost = actual_data.get('cost', 0)
+                actual_tokens = actual_data.get('tokens_used', 0)
+                
+                # Sources comparison
+                sources_diff = actual_sources - config['estimated_sources']
+                sources_color = "#10b981" if sources_diff >= 0 else "#f59e0b"
+                
+                card_html += f"""
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                        📄 Sources Retrieved
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: {config['color']};">
+                            {actual_sources}
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #9ca3af; font-size: 12px;">Expected: {config['estimated_sources']}</div>
+                            <div style="color: {sources_color}; font-size: 14px; font-weight: 600;">
+                                {'+' if sources_diff >= 0 else ''}{sources_diff}
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background: #e5e7eb; height: 4px; border-radius: 2px; margin-top: 8px;">
+                        <div style="background: {config['gradient']}; height: 4px; width: {min(100, (actual_sources/config['estimated_sources'])*100)}%; border-radius: 2px;"></div>
+                    </div>
                 </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """
+                
+                # Cost comparison
+                cost_diff = actual_cost - config['estimated_cost']
+                cost_color = "#10b981" if cost_diff <= 0 else "#ef4444"
+                
+                card_html += f"""
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                        💰 Cost Analysis
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: {config['color']};">
+                            ${actual_cost:.6f}
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #9ca3af; font-size: 12px;">Est: ${config['estimated_cost']:.3f}</div>
+                            <div style="color: {cost_color}; font-size: 14px; font-weight: 600;">
+                                {'+' if cost_diff > 0 else ''}{cost_diff:.6f}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                """
+                
+                # Tokens comparison
+                tokens_diff = actual_tokens - config['estimated_tokens']
+                tokens_color = "#667eea"
+                
+                card_html += f"""
+                <div style="margin-bottom: 20px;">
+                    <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+                        🎯 Tokens Used
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 24px; font-weight: 700; color: {config['color']};">
+                            {actual_tokens:,}
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #9ca3af; font-size: 12px;">Est: {config['estimated_tokens']:,}</div>
+                            <div style="color: {tokens_color}; font-size: 14px;">
+                                {'+' if tokens_diff > 0 else ''}{tokens_diff:,}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                """
+                
+                # Status badge
+                card_html += f"""
+                <div style="
+                    position: absolute;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #10b981;
+                    color: white;
+                    padding: 6px 16px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                ">
+                    ✅ Complete
+                </div>
+                """
+                
+            elif processing:
+                # Show loading state
+                card_html += f"""
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="color: {config['color']}; margin-bottom: 16px;">
+                        <svg width="48" height="48" viewBox="0 0 24 24" style="animation: spin 1s linear infinite;">
+                            <circle cx="12" cy="12" r="10" stroke="{config['color']}" stroke-width="4" fill="none" stroke-dasharray="60" stroke-dashoffset="20"/>
+                        </svg>
+                    </div>
+                    <div style="color: #6b7280; font-size: 14px;">Processing...</div>
+                    <div style="color: #9ca3af; font-size: 12px; margin-top: 8px;">
+                        Est. time: {config['estimated_time']}s
+                    </div>
+                </div>
+                
+                <style>
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+                </style>
+                """
+            else:
+                # Show estimated metrics only
+                card_html += f"""
+                <div style="padding: 20px 0;">
+                    <div style="margin-bottom: 16px;">
+                        <div style="color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">
+                            Expected Performance
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #6b7280; font-size: 14px;">📄 Sources</span>
+                            <span style="color: {config['color']}; font-weight: 600;">{config['estimated_sources']}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #6b7280; font-size: 14px;">💰 Cost</span>
+                            <span style="color: {config['color']}; font-weight: 600;">${config['estimated_cost']:.3f}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #6b7280; font-size: 14px;">🎯 Tokens</span>
+                            <span style="color: {config['color']}; font-weight: 600;">{config['estimated_tokens']:,}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #f9fafb; border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #6b7280; font-size: 14px;">⏱️ Time</span>
+                            <span style="color: {config['color']}; font-weight: 600;">~{config['estimated_time']}s</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="
+                    position: absolute;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: #e5e7eb;
+                    color: #6b7280;
+                    padding: 6px 16px;
+                    border-radius: 20px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                ">
+                    Ready
+                </div>
+                """
+            
+            card_html += "</div>"
+            
+            st.markdown(card_html, unsafe_allow_html=True)
+    
+    # Performance summary if results available
+    if results and agent_results:
+        st.markdown("---")
+        st.markdown("### 📈 Overall Performance Metrics")
+        
+        total_actual_cost = sum([a.get('cost', 0) for a in agent_results])
+        total_estimated_cost = sum([agent_config[a]['estimated_cost'] for a in selected_agents if a in agent_config])
+        
+        total_actual_tokens = sum([a.get('tokens_used', 0) for a in agent_results])
+        total_estimated_tokens = sum([agent_config[a]['estimated_tokens'] for a in selected_agents if a in agent_config])
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            cost_saved = total_estimated_cost - total_actual_cost
+            st.metric(
+                "💰 Cost Efficiency",
+                f"${total_actual_cost:.6f}",
+                f"Saved ${cost_saved:.6f}" if cost_saved > 0 else f"+${abs(cost_saved):.6f}",
+                delta_color="normal" if cost_saved > 0 else "inverse"
+            )
+        
+        with col2:
+            token_diff = total_actual_tokens - total_estimated_tokens
+            st.metric(
+                "🎯 Token Usage",
+                f"{total_actual_tokens:,}",
+                f"{token_diff:+,} from estimate"
+            )
+        
+        with col3:
+            execution_time = results.get('execution_time', 0)
+            st.metric(
+                "⏱️ Total Time",
+                f"{execution_time:.1f}s",
+                f"{execution_time/60:.1f} minutes"
+            )

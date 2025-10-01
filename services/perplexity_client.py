@@ -1,26 +1,23 @@
 # ============================================================================
-# FILE: services/perplexity_client.py
-# COMPLETE REPLACEMENT - Copy this entire file
+# FILE 1: services/perplexity_client.py
+# COMPLETE REPLACEMENT - Copy entire content
 # ============================================================================
 import aiohttp
-import json
+import asyncio
 from typing import Dict, List, Optional
 from datetime import datetime
 
 class PerplexityClient:
-    """Client for Perplexity API with deep search capabilities"""
-    
-    SUPPORTED_DOMAINS = ["stocks", "medical", "academic", "technology", "general"]
+    """Async client for Perplexity API with deep search"""
     
     def __init__(self, api_key: str):
-        """Initialize Perplexity client with API key"""
         self.api_key = api_key
         self.base_url = "https://api.perplexity.ai"
         self.model = "sonar-pro"
-        
+    
     async def deep_search(
-        self, 
-        query: str, 
+        self,
+        query: str,
         domain: str = "general",
         max_tokens: int = 2000
     ) -> Dict:
@@ -29,15 +26,12 @@ class PerplexityClient:
         
         Args:
             query: Research question
-            domain: Research domain
-            max_tokens: Maximum tokens for response
+            domain: Research domain (stocks, medical, academic, technology, general)
+            max_tokens: Maximum response tokens
             
         Returns:
-            Dictionary containing search results and metadata
+            Dict with success, sources, findings, etc.
         """
-        
-        if domain not in self.SUPPORTED_DOMAINS:
-            domain = "general"
         
         system_prompt = self._get_system_prompt(domain)
         
@@ -70,50 +64,52 @@ class PerplexityClient:
                     
                     if response.status != 200:
                         error_text = await response.text()
+                        print(f"   ❌ API Error {response.status}: {error_text[:200]}")
                         return {
                             "success": False,
-                            "error": f"API Error {response.status}: {error_text}",
-                            "tokens_used": 0,
-                            "status_code": response.status
+                            "error": f"API error {response.status}",
+                            "tokens_used": 0
                         }
                     
                     result = await response.json()
                     return self._parse_response(result, query, domain)
-                    
-        except aiohttp.ClientError as e:
+        
+        except asyncio.TimeoutError:
+            print(f"   ❌ Request timeout after 120s")
             return {
                 "success": False,
-                "error": f"Connection error: {str(e)}",
+                "error": "Request timeout",
                 "tokens_used": 0
             }
         except Exception as e:
+            print(f"   ❌ Connection error: {e}")
             return {
                 "success": False,
-                "error": f"Unexpected error: {str(e)}",
+                "error": f"Connection error: {str(e)}",
                 "tokens_used": 0
             }
     
     def _get_system_prompt(self, domain: str) -> str:
         """Get domain-specific system prompt"""
         
-        base = """You are an expert research assistant. Provide detailed, well-structured research with:
+        base = """You are an expert research analyst. Provide comprehensive, well-structured analysis with:
 
-**Executive Summary** (2-3 sentences): Concise overview of main findings.
-**Key Findings** (3-5 bullet points): Most important discoveries.
-**Detailed Analysis**: Thorough analysis with evidence.
-**Insights**: Patterns, trends, and implications.
+1. EXECUTIVE SUMMARY (2-3 sentences)
+2. KEY FINDINGS (3-5 specific bullet points)
+3. DETAILED ANALYSIS (comprehensive evaluation)
+4. INSIGHTS (2-4 strategic observations)
 
-Be thorough, accurate, and cite sources."""
+Format your response with clear section headers."""
 
-        domains = {
-            "stocks": base + "\n\n**Focus**: Stock market data, earnings, analyst opinions, market trends.",
-            "medical": base + "\n\n**Focus**: Peer-reviewed studies, clinical trials, medical research, FDA approvals.",
-            "academic": base + "\n\n**Focus**: Scholarly articles, research papers, academic publications, citations.",
-            "technology": base + "\n\n**Focus**: Tech developments, product launches, industry trends, innovations.",
-            "general": base + "\n\n**Focus**: Comprehensive research across all relevant sources."
+        domain_prompts = {
+            "stocks": base + "\n\nFocus on: Stock performance, financial metrics, analyst ratings, market trends, earnings, and investment outlook.",
+            "medical": base + "\n\nFocus on: Clinical trials, peer-reviewed studies, treatment efficacy, safety data, and regulatory status.",
+            "academic": base + "\n\nFocus on: Scholarly research, peer-reviewed papers, citations, methodologies, and academic discourse.",
+            "technology": base + "\n\nFocus on: Technology developments, product launches, innovations, market impact, and technical specifications.",
+            "general": base
         }
         
-        return domains.get(domain, domains["general"])
+        return domain_prompts.get(domain, domain_prompts["general"])
     
     def _parse_response(self, result: Dict, query: str, domain: str) -> Dict:
         """Parse API response into structured format"""
@@ -133,37 +129,36 @@ Be thorough, accurate, and cite sources."""
             usage = result.get("usage", {})
             
             tokens_used = usage.get("total_tokens", 0)
-            prompt_tokens = usage.get("prompt_tokens", 0)
-            completion_tokens = usage.get("completion_tokens", 0)
             
+            # Extract structured sections
             sections = self._extract_sections(content)
+            
+            # Format citations as sources
+            sources = self._format_citations(citations)
+            
+            # Calculate cost (sonar-pro: $5 per 1M tokens)
+            estimated_cost = (tokens_used / 1_000_000) * 5.0
+            
+            print(f"   ✅ API Success: {len(sources)} sources, {tokens_used} tokens")
             
             return {
                 "success": True,
                 "query": query,
                 "domain": domain,
                 "timestamp": datetime.now().isoformat(),
-                "executive_summary": sections.get("summary", content[:200]),
+                "executive_summary": sections.get("summary", ""),
                 "key_findings": sections.get("findings", []),
-                "detailed_analysis": sections.get("analysis", content),
+                "detailed_analysis": sections.get("analysis", ""),
                 "insights": sections.get("insights", []),
-                "sources": self._format_citations(citations),
-                "citation_count": len(citations),
+                "sources": sources,
+                "citation_count": len(sources),
                 "tokens_used": tokens_used,
-                "prompt_tokens": prompt_tokens,
-                "completion_tokens": completion_tokens,
-                "token_breakdown": {
-                    "input": prompt_tokens,
-                    "output": completion_tokens,
-                    "total": tokens_used
-                },
-                "estimated_cost": (tokens_used / 1_000_000) * 1.0,
-                "full_response": content,
-                "model": self.model,
-                "search_quality": "deep" if tokens_used > 1000 else "standard"
+                "estimated_cost": estimated_cost,
+                "model": self.model
             }
             
         except Exception as e:
+            print(f"   ❌ Parse error: {e}")
             return {
                 "success": False,
                 "error": f"Parse error: {str(e)}",
@@ -173,62 +168,88 @@ Be thorough, accurate, and cite sources."""
     def _extract_sections(self, content: str) -> Dict:
         """Extract structured sections from content"""
         
-        sections = {"summary": "", "findings": [], "analysis": "", "insights": []}
+        sections = {
+            "summary": "",
+            "findings": [],
+            "analysis": "",
+            "insights": []
+        }
+        
         content_lower = content.lower()
         
-        # Extract summary
-        if "executive summary" in content_lower:
-            try:
-                start = content_lower.index("executive summary")
-                text = content[start + 17:].strip()
-                end = text.lower().find("\n\n")
-                if end > 0:
-                    sections["summary"] = text[:end].strip().lstrip(":").strip()
-                else:
-                    sections["summary"] = text[:200].strip()
-            except:
-                pass
-        
-        # Extract findings
-        for marker in ["key findings", "findings:"]:
+        # Extract Executive Summary
+        summary_markers = ["executive summary", "summary:", "overview:"]
+        for marker in summary_markers:
             if marker in content_lower:
                 try:
                     start = content_lower.index(marker)
                     text = content[start + len(marker):].strip()
+                    
+                    # Find end (next section or double newline)
                     end = 500
-                    for stop in ["\n\n**", "analysis:", "insights:"]:
-                        idx = text.lower().find(stop)
-                        if 0 < idx < end:
-                            end = idx
-                    findings_text = text[:end]
-                    for line in findings_text.split("\n"):
-                        line = line.strip()
-                        if line and any(line.startswith(x) for x in ["-", "•", "*", "1", "2", "3"]):
-                            sections["findings"].append(line.lstrip("-•*0123456789. "))
+                    for delimiter in ["\n\n", "key finding", "analysis:"]:
+                        pos = text[:end].lower().find(delimiter)
+                        if pos > 0:
+                            end = pos
+                            break
+                    
+                    sections["summary"] = text[:end].strip()
                     break
                 except:
                     pass
         
-        # Extract insights
-        if "insights" in content_lower:
-            try:
-                start = content_lower.index("insights")
-                text = content[start + 8:].strip()
-                end = 300
-                for line in text[:end].split("\n"):
-                    line = line.strip()
-                    if line and any(line.startswith(x) for x in ["-", "•", "*", "1", "2"]):
-                        sections["insights"].append(line.lstrip("-•*0123456789. "))
-            except:
-                pass
+        # Extract Key Findings
+        finding_markers = ["key finding", "findings:", "main points:"]
+        for marker in finding_markers:
+            if marker in content_lower:
+                try:
+                    start = content_lower.index(marker)
+                    text = content[start:].strip()
+                    
+                    lines = text.split("\n")
+                    for line in lines[:15]:
+                        line = line.strip()
+                        # Check if line starts with bullet or number
+                        if line and any(line.startswith(x) for x in ["-", "•", "*", "1.", "2.", "3.", "4.", "5."]):
+                            finding = line.lstrip("-•*0123456789. ").strip()
+                            if len(finding) > 20:
+                                sections["findings"].append(finding)
+                        
+                        if len(sections["findings"]) >= 5:
+                            break
+                    break
+                except:
+                    pass
+        
+        # Extract Insights
+        insight_markers = ["insights:", "key insights", "observations:"]
+        for marker in insight_markers:
+            if marker in content_lower:
+                try:
+                    start = content_lower.index(marker)
+                    text = content[start:].strip()
+                    
+                    lines = text.split("\n")
+                    for line in lines[:10]:
+                        line = line.strip()
+                        if line and any(line.startswith(x) for x in ["-", "•", "*", "1.", "2.", "3.", "4."]):
+                            insight = line.lstrip("-•*0123456789. ").strip()
+                            if len(insight) > 20:
+                                sections["insights"].append(insight)
+                        
+                        if len(sections["insights"]) >= 4:
+                            break
+                    break
+                except:
+                    pass
         
         # Fallbacks
         if not sections["summary"]:
-            sentences = content.split(". ")[:2]
+            sentences = content.split(". ")[:3]
             sections["summary"] = ". ".join(sentences).strip() + "."
         
         if not sections["findings"]:
-            sentences = [s for s in content.split(". ") if len(s) > 30]
+            sentences = [s.strip() for s in content.split(". ") if len(s.strip()) > 40]
             sections["findings"] = sentences[:5]
         
         sections["analysis"] = content
@@ -236,15 +257,17 @@ Be thorough, accurate, and cite sources."""
         return sections
     
     def _format_citations(self, citations: List) -> List[Dict]:
-        """Format citations into structured sources"""
+        """Format citations as source objects"""
         
         sources = []
+        
         for idx, citation in enumerate(citations, 1):
             if isinstance(citation, str):
                 sources.append({
                     "id": idx,
                     "url": citation,
                     "title": f"Source {idx}",
+                    "snippet": "",
                     "type": "web"
                 })
             elif isinstance(citation, dict):
