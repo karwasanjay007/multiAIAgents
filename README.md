@@ -213,6 +213,7 @@ source .venv/bin/activate
 
 ```bash
 pip install -r requirements.txt
+pip install aiohttp langchain-community youtube-transcript-api arxiv
 ```
 
 **requirements.txt includes:**

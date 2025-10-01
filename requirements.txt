@@ -1,65 +1,68 @@
-# Core app and UI
+# Core Framework
 streamlit
 
-# LangGraph and LangChain ecosystem
+# LangChain Ecosystem
 langgraph
 langchain
 langchain-openai
 langchain-community
 
-# LLMs and API clients
+# LLM APIs & Tokenization
 openai
 tiktoken
 
-# Vector DB and embeddings
+# Vector DB & Embeddings
 chromadb
-huggingface_hub[hf_xet]
 sentence-transformers
 lancedb
 pyarrow
+huggingface_hub
 
-# Web/API integrations
+# Async & HTTP
 aiohttp
 requests
+
+# Research & Search APIs
+arxiv
+duckduckgo-search
+newsapi-python
+youtube-transcript-api
 serpapi
 tavily-python
-duckduckgo-search
-ddgs
-newsapi-python
-arxiv
-pymupdf
 google-api-python-client
-youtube-transcript-api
 yt-dlp
 
-# Audio/transcription
+# Document Processing
+pymupdf
+beautifulsoup4
+lxml
+
+# Export & Formatting
+reportlab
+markdown2
+python-docx
+
+# Audio/Transcription
 openai-whisper
 torch
 torchaudio
 ffmpeg-python
 
-# Utilities and environment
+# Data Processing
 pandas
+numpy
+
+# Environment & Config
 python-dotenv
 anyio
 typing-extensions
 pydantic
 pydantic-settings
 
-# PDF/text generation
-reportlab
-markdown2
-python-docx
-
-# XML/HTML parsing
-lxml
-beautifulsoup4
-
-# Additional utilities
-numpy
+# Utilities
 tqdm
 jsonschema
 
-# Dev/test
+# Development & Testing
 pytest
 pytest-asyncio
